@@ -13,7 +13,7 @@ kernelspec:
   name: Python3
 ---
 
-# Build a Web App to use a Mchine Learning model
+# Build a web app to use a Machine Learning model
 
 In this section, you will train an ML model on a data set that's out of this world: _UFO sightings over the past century_, sourced from NUFORC's database.
 
@@ -38,9 +38,9 @@ There are many questions you need to ask:
 - **Where will the model reside?** In the cloud or locally?
 - **Offline support.** Does the app have to work offline?
 - **What technology was used to train the model?** The chosen technology may influence the tooling you need to use.
-    - **Using TensorFlow.** If you are training a model using TensorFlow, for example, that ecosystem provides the ability to convert a TensorFlow model for use in a web app by using [TensorFlow.js](https://www.tensorflow.org/js/).
-    - **Using PyTorch.** If you are building a model using a library such as [PyTorch](https://pytorch.org/), you have the option to export it in [ONNX](https://onnx.ai/) (Open Neural Network Exchange) format for use in JavaScript web apps that can use the [Onnx Runtime](https://www.onnxruntime.ai/). This option will be explored in a future section for a Scikit-learn-trained model.
-    - **Using Lobe.ai or Azure Custom Vision.** If you are using an ML SaaS (Software as a Service) system such as [Lobe.ai](https://lobe.ai/) or [Azure Custom Vision](https://azure.microsoft.com/services/cognitive-services/custom-vision-service/?WT.mc_id=academic-77952-leestott) to train a model, this type of software provides ways to export the model for many platforms, including building a bespoke API to be queried in the cloud by your online application.
+  - **Using TensorFlow.** If you are training a model using TensorFlow, for example, that ecosystem provides the ability to convert a TensorFlow model for use in a web app by using [TensorFlow.js](https://www.tensorflow.org/js/).
+  - **Using PyTorch.** If you are building a model using a library such as [PyTorch](https://pytorch.org/), you have the option to export it in [ONNX](https://onnx.ai/) (Open Neural Network Exchange) format for use in JavaScript web apps that can use the [Onnx Runtime](https://www.onnxruntime.ai/). This option will be explored in a future section for a Scikit-learn-trained model.
+  - **Using Lobe.ai or Azure Custom Vision.** If you are using an ML SaaS (Software as a Service) system such as [Lobe.ai](https://lobe.ai/) or [Azure Custom Vision](https://azure.microsoft.com/services/cognitive-services/custom-vision-service/?WT.mc_id=academic-77952-leestott) to train a model, this type of software provides ways to export the model for many platforms, including building a bespoke API to be queried in the cloud by your online application.
 
 You also have the opportunity to build an entire Flask web app that would be able to train the model itself in a web browser. This can also be done using TensorFlow.js in a JavaScript context.
 
@@ -56,7 +56,7 @@ For this task, you need two tools: Flask and Pickle, both of which run on Python
 
 ## Exercise - clean your data
 
-In this section you'll use data from 80,000 UFO sightings, gathered by [NUFORC](https://nuforc.org) (The National UFO Reporting Center). This data has some interesting descriptions of UFO sightings, for example:
+In this section, you'll use data from 80,000 UFO sightings, gathered by [NUFORC](https://nuforc.org) (The National UFO Reporting Center). This data has some interesting descriptions of UFO sightings, for example:
 
 - **Long example description.** "A man emerges from a beam of light that shines on a grassy field at night and he runs towards the Texas Instruments parking lot".
 - **Short example description.** "the lights chased us".
@@ -65,9 +65,10 @@ The `ufos.csv` spreadsheet includes columns about the `city`, `state` and `count
 
 Create a blank `notebook` to continue the steps below:
 
-Import `pandas`, `matplotlib`, and `numpy` as you did in previous section and import the ufos spreadsheet. You can take a look at a sample data set:
+Import `pandas`, `matplotlib`, and `numpy` as you did in the previous section and import the ufos spreadsheet. You can take a look at a sample data set:
 
 ```{code-cell}
+:tags: ["output_scroll"]
 import pandas as pd
 import numpy as np
     
@@ -78,7 +79,12 @@ ufos.head()
 Convert the ufos data to a small dataframe with fresh titles. Check the unique values in the `Country` field.
 
 ```{code-cell}
-ufos = pd.DataFrame({'Seconds': ufos['duration (seconds)'], 'Country': ufos['country'],'Latitude': ufos['latitude'],'Longitude': ufos['longitude']})
+ufos = pd.DataFrame({
+    'Seconds': ufos['duration (seconds)'], 
+    'Country': ufos['country'],
+    'Latitude': ufos['latitude'],
+    'Longitude': ufos['longitude']
+})
 
 ufos.Country.unique()
 ```
@@ -95,7 +101,6 @@ ufos.info()
 
 Import Scikit-learn's `LabelEncoder` library to convert the text values for countries to a number:
 
-
 ```{code-cell}
 from sklearn.preprocessing import LabelEncoder
 
@@ -105,7 +110,7 @@ ufos.head()
 ```
 
 ```{note}
-LabelEncoder encodes data alphabetically
+LabelEncoder encodes data alphabetically.
 ```
 
 ## Exercise - build your model
@@ -117,7 +122,7 @@ Now you can get ready to train a model by dividing the data into the training an
 ```{code-cell}
 from sklearn.model_selection import train_test_split
 
-Selected_features = ['Seconds','Latitude','Longitude']
+Selected_features = ['Seconds', 'Latitude', 'Longitude']
 
 X = ufos[Selected_features].values
 y = ufos['Country'].values
@@ -125,11 +130,12 @@ y = ufos['Country'].values
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 ```
 
- Train your model using logistic regression:
+Train your model using logistic regression:
 
 ```{code-cell}
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.linear_model import LogisticRegression
+
 model = LogisticRegression(solver="sag",max_iter=10000)
 model.fit(X_train, y_train)
 predictions = model.predict(X_test)
@@ -149,22 +155,23 @@ Now, it's time to _pickle_ your model! You can do that in a few lines of code. O
 
 ```{code-cell}
 import pickle
-model_filename = 'ufo-model.pkl'
-pickle.dump(model, open(model_filename,'wb'))
 
-model = pickle.load(open('ufo-model.pkl','rb'))
-print(model.predict(pd.DataFrame([[50,44,-12]])))
+model_filename = '../assets/pickle/ufo-model.pkl'
+pickle.dump(model, open(model_filename, 'wb'))
+
+model = pickle.load(open('../assets/pickle/ufo-model.pkl', 'rb'))
+print(model.predict(pd.DataFrame([[50, 44, -12]])))
 ```
 
 The model returns **'3'**, which is the country code for the UK. Wild! 👽
 
 ## Exercise - build a Flask app
 
-Now you can build a Flask app to call your model and return similar results, but in a more visually pleasing way.
+Now you can build a Flask app to call your model and return similar results but in a more visually pleasing way.
 
- Start by creating a folder called **web-app** next to the _notebook.ipynb_ file where your _ufo-model.pkl_ file resides.
+Start by creating a folder called `/web-app` next to the `notebook.ipynb` file where your `ufo-model.pkl` file resides.
 
- In that folder create three more folders: **static**, with a folder **css** inside it, and **templates**. You should now have the following files and directories:
+In that folder create three more folders: `/static`, with a folder `/css` inside it, and `/templates`. You should now have the following files and directories:
 
 ```output
 web-app/
@@ -172,12 +179,15 @@ web-app/
     css/
     templates/
 notebook.ipynb
-ufo-model.pkl
+../
+    assets/
+        pickle/
+            ufo-model.pkl
 ```
 
 ✅ Refer to the solution folder for a view of the finished app
 
-The first file to create in _web-app_ folder is **requirements.txt** file. Like _package.json_ in a JavaScript app, this file lists dependencies required by the app. In **requirements.txt** add the lines:
+The first file to create in `/web-app` folder is `requirements.txt` file. Like `package.json` in a JavaScript app, this file lists dependencies required by the app. In `requirements.txt` add the lines:
 
 ```text
 scikit-learn
@@ -186,23 +196,23 @@ numpy
 flask
 ```
 
-Now, run this file by navigating to _web-app_:
+Now, run this file by navigating to `/web-app`:
 
-```output
+```bash
 cd web-app
 ```
 
-In your terminal type `pip install`, to install the libraries listed in _requirements.txt_:
+In your terminal type `pip install`, to install the libraries listed in `requirements.txt`:
 
-```output
+```bash
 pip install -r requirements.txt
 ```
 
 Now, you're ready to create three more files to finish the app:
 
-    1. Create **app.py** in the root.
-    2. Create **index.html** in _templates_ directory.
-    3. Create **styles.css** in _static/css_ directory.
+1. Create `app.py` in the root.
+2. Create `index.html` in `/templates` directory.
+3. Create `styles.css` in `/static/css` directory.
 
 Build out the _styles.css_ file with a few styles:
 
@@ -288,7 +298,7 @@ import pickle
 
 app = Flask(__name__)
 
-model = pickle.load(open("./ufo-model.pkl", "rb"))
+model = pickle.load(open("../assets/pickle/ufo-model.pkl", "rb"))
 
 
 @app.route("/")
@@ -330,23 +340,19 @@ Before doing that, take a look at the parts of `app.py`:
 
 On the `/predict` route, several things happen when the form is posted:
 
-1. The form variables are gathered and converted to a numpy array. They are then sent to the model and a prediction is returned.
-2. The Countries that we want displayed are re-rendered as readable text from their predicted country code, and that value is sent back to index.html to be rendered in the template.
+1. The form variables are gathered and converted to a NumPy array. They are then sent to the model and a prediction is returned.
+2. The Countries that we want to be displayed are re-rendered as readable text from their predicted country code, and that value is sent back to index.html to be rendered in the template.
 
 Using a model this way, with Flask and a pickled model, is relatively straightforward. The hardest thing is to understand what shape the data is that must be sent to the model to get a prediction. That all depends on how the model was trained. This one has three data points to be input in order to get a prediction.
 
-In a professional setting, you can see how good communication is necessary between the folks who train the model and those who consume it in a web or mobile app. In our case, it's only one person, you!
+## Your turn! 🚀
 
----
-
-## Your trun! 🚀 
-
-Instead of working in a notebook and importing the model to the Flask app, you could train the model right within the Flask app! Try converting your Python code in the notebook, perhaps after your data is cleaned, to train the model from within the app on a route called `train`. What are the pros and cons of pursuing this method?
+Instead of working in a notebook and importing the model to the Flask app, you could train the model right within the Flask app! Try converting your Python code in the notebook, perhaps after your data is cleaned, to train the model from within the app on a route called `/train`. What are the pros and cons of pursuing this method? Practice it by following this [assignment](../assignments/ml-fundamentals/try-a-different-model.md)
 
 ## Self study
 
 There are many ways to build a web app to consume ML models. Make a list of the ways you could use JavaScript or Python to build a web app to leverage machine learning. Consider architecture: should the model stay in the app or live in the cloud? If the latter, how would you access it? Draw out an architectural model for an applied ML web solution.
 
-## Acknowledgments
+## Acknowledgements
 
-Thanks to Microsoft for creating the open-source course ML-For-Beginners. It inspires the majority of the content in this chapter.
+Thanks to Microsoft for creating the open-source course [ML-For-Beginners](https://github.com/microsoft/ML-For-Beginners). It inspires the majority of the content in this chapter.
